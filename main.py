@@ -1,22 +1,22 @@
 import pygame
 
-import numpy as np
-import matplotlib.pyplot as plt
+from pprint import pprint
+from src.helper.tracks import expand_path, draw_paths
+from src.utils import constants
 
-from src.helper.tracks import expand_path
 
 def main():
     pygame.init()
-    screen = pygame.display.set_mode((1180, 620))
-    pygame.display.set_caption("Draw Rough Track")
+    drawing_screen = pygame.display.set_mode(constants.SCREEN_DIMENSION)
+    pygame.display.set_caption(constants.DRAWING_SCREEN_CAPTION)
     clock = pygame.time.Clock()
 
     drawing = True
-    points = []
+    points = list()
     drawing_active = False
 
     while drawing:
-        screen.fill((0, 0, 0))
+        drawing_screen.fill(constants.BLACK_COLOR)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -46,32 +46,37 @@ def main():
                     return
 
         if len(points) > 1:
-            pygame.draw.lines(screen, (255, 255, 255), False, points, 5)
+            pygame.draw.lines(drawing_screen, constants.WHITE_COLOR,
+                              False, points, constants.DRAWN_TRACK_SIZE)
 
         pygame.display.flip()
 
-        clock.tick(60)
+        clock.tick(constants.FPS)
 
-    inner_points, outer_points = expand_path(points, 30)
-    
-    inner_points_x = [i for i, j in inner_points]
-    inner_points_x.extend([inner_points[0][0]])
-    
-    inner_points_y = [620 - j for i, j in inner_points]
-    inner_points_y.extend([620 - inner_points[0][1]])
-    
-    outer_points_x = [i for i, j in outer_points]
-    outer_points_x.extend([outer_points[0][0]])
-    
-    outer_points_y = [620 - j for i, j in outer_points]
-    outer_points_y.extend([620 - outer_points[0][1]])
-    
-    inner_points_x, inner_points_y, outer_points_x, outer_points_y = np.array(inner_points_x), np.array(inner_points_y), np.array(outer_points_x), np.array(outer_points_y)
-    
-    plt.plot(inner_points_x, inner_points_y)
-    plt.plot(outer_points_x, outer_points_y)
-    
-    plt.show()
+    inner_points, outer_points = expand_path(points, 40)
+
+    pygame.init()
+    final_screen = pygame.display.set_mode(constants.SCREEN_DIMENSION)
+    pygame.display.set_caption(constants.FINAL_SCREEN_CAPTION)
+    clock = pygame.time.Clock()
+
+    running = True
+
+    while running:
+        final_screen.fill(constants.BLACK_COLOR)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                return
+
+        draw_paths(final_screen, inner_points, outer_points)
+        
+        pygame.draw.circle(final_screen, constants.RED_COLOR, ((inner_points[0][0]+outer_points[0][0])/2, (inner_points[0][1]+outer_points[0][1])/2), 2)
+
+        pygame.display.flip()
+
+        clock.tick(constants.FPS)
 
     pygame.quit()
 
