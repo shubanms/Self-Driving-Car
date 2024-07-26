@@ -28,15 +28,15 @@ class Car:
         self.acceleration = constants.CAR_ACCELERATION
         self.deceleration = constants.CAR_DECELERATION
         self.turning_radius = constants.CAR_TURNING_RADIUS
-        
+
     def _draw(self, size: int):
         """
             This function draws the car around with co-ords which then are used to place the car shape onto the screen
-            
+
             Args:
                 size (int): The size of the car object to be drawn on the screen
         """
-        
+
         car_points = list()
 
     def move(self, key):
@@ -76,5 +76,3 @@ class Car:
             print("Crashed!")
             pygame.quit()
             sys.exit()
-
-    

@@ -1,5 +1,11 @@
 # CONSTANTS
 
+# Game Screen States
+
+DRAW_SCREEN = "draw"
+EDIT_SCREEN = "edit"
+FINAL_SCREEN = "final"
+
 # Game Frames Per Second
 
 FPS = 60
@@ -20,6 +26,8 @@ FINAL_SCREEN_CAPTION = "Racing Game"
 WHITE_COLOR = (255, 255, 255)
 BLACK_COLOR = (0, 0, 0)
 RED_COLOR = (255, 0, 0)
+GREEN_COLOR = (0, 255, 0)
+BLUE_COLOR = (0, 0, 255)
 
 # Track sizes
 
