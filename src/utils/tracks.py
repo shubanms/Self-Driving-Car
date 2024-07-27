@@ -5,6 +5,17 @@ import numpy as np
 
 from src.utils import constants
 
+# TODO - Create this into a class and add other functionality to track the car placement in the track
+
+def line_intersect(x1, y1, x2, y2, x3, y3, x4, y4):
+    """
+    Helper function to determine if two line segments intersect.
+    """
+    def ccw(A, B, C):
+        return (C[1]-A[1]) * (B[0]-A[0]) > (B[1]-A[1]) * (C[0]-A[0])
+
+    return ccw((x1, y1), (x3, y3), (x4, y4)) != ccw((x2, y2), (x3, y3), (x4, y4)) and \
+           ccw((x1, y1), (x2, y2), (x3, y3)) != ccw((x1, y1), (x2, y2), (x4, y4))
 
 def expand_path(points: list, thickness: int):
     """
@@ -61,9 +72,9 @@ def draw_paths(screen, inner_points, outer_points):
     """
 
     if inner_points and outer_points:
-        pygame.draw.lines(screen, constants.WHITE_COLOR,
+        pygame.draw.lines(screen, constants.BLUE_COLOR,
                           False, inner_points, 2)
-        pygame.draw.lines(screen, constants.WHITE_COLOR,
+        pygame.draw.lines(screen, constants.BLUE_COLOR,
                           False, outer_points, 2)
 
 

@@ -55,7 +55,7 @@ def main():
 
         clock.tick(constants.FPS)
 
-    inner_points, outer_points = expand_path(points, 50)
+    inner_points, outer_points = expand_path(points, constants.FINAL_TRACK_SIZE)
 
     # Edit screen
 
@@ -98,11 +98,6 @@ def main():
 
         draw_paths(edit_screen, inner_points, outer_points)
 
-        # Locate the start point to place the car
-
-        # pygame.draw.circle(edit_screen, constants.RED_COLOR, ((
-        #     inner_points[0][0]+outer_points[0][0])/2, (inner_points[0][1]+outer_points[0][1])/2), 2)
-
         starting_point_x, starting_point_y = (
             (inner_points[0][0] + outer_points[0][0]) / 2, (inner_points[0][1] + outer_points[0][1]) / 2)
 
@@ -116,10 +111,10 @@ def main():
     final_screen = pygame.display.set_mode(constants.SCREEN_DIMENSION)
     pygame.display.set_caption(constants.EDITING_SCREEN_CAPTION)
 
-    car = Car(starting_point_x, starting_point_y)
-
     car_body = pygame.image.load(constants.CAR_BODY_FILE_PATH)
-    car_body = pygame.transform.scale(car_body, (30, 17))
+    car_body = pygame.transform.scale(car_body, constants.CAR_DIMENSIONS)
+
+    car = Car(screen = final_screen, x = starting_point_x, y = starting_point_y, show_sensors = True, dimensions = constants.CAR_DIMENSIONS, path = (inner_points, outer_points), collisions = True)
 
     running = True
 
@@ -143,7 +138,7 @@ def main():
 
         draw_paths(final_screen, inner_points, outer_points)
 
-        car.draw(final_screen, car_body)
+        car.draw(car_body)
 
         pygame.display.flip()
         clock.tick(constants.FPS)
