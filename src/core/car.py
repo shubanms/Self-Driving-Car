@@ -29,15 +29,10 @@ class Car:
         self.deceleration = constants.CAR_DECELERATION
         self.turning_radius = constants.CAR_TURNING_RADIUS
 
-    def _draw(self, size: int):
-        """
-            This function draws the car around with co-ords which then are used to place the car shape onto the screen
-
-            Args:
-                size (int): The size of the car object to be drawn on the screen
-        """
-
-        car_points = list()
+    def draw(self, screen, car_body):
+        rotated_car = pygame.transform.rotate(car_body, -self.angle)
+        new_rect = rotated_car.get_rect(center=(self.x, self.y))
+        screen.blit(rotated_car, new_rect.topleft)
 
     def move(self, key):
         """
@@ -72,7 +67,7 @@ class Car:
         self.y += self.speed * math.sin(radians)
 
         # Check if the car touches or crashed with the outer game window boundary
-        if self.x < constants.SCREEN_WIDTH or self.x > 0 or self.y < constants.SCREEN_HEIGHT or self.y > 0:
-            print("Crashed!")
-            pygame.quit()
-            sys.exit()
+        # if self.x < constants.SCREEN_WIDTH or self.x > 0 or self.y < constants.SCREEN_HEIGHT or self.y > 0:
+        #     print("Crashed!")
+        #     pygame.quit()
+        #     sys.exit()

@@ -1,88 +1,154 @@
 import pygame
 
-from src.utils.tracks import expand_path, draw_paths
+from src.utils.tracks import expand_path, draw_paths, erase_points
 from src.utils import constants
-from src.core.game import GameScreen
+from src.core.car import Car
 
 
 def main():
+    # Drawing Screen
+
     pygame.init()
     screen = pygame.display.set_mode(constants.SCREEN_DIMENSION)
     pygame.display.set_caption(constants.DRAWING_SCREEN_CAPTION)
-    # clock = pygame.time.Clock()
+    clock = pygame.time.Clock()
 
-    # drawing = True
-    # points = list()
-    # drawing_active = False
+    drawing = True
+    points = list()
+    drawing_active = False
 
-    # while drawing:
-    #     drawing_screen.fill(constants.BLACK_COLOR)
+    while drawing:
+        screen.fill(constants.BLACK_COLOR)
 
-    #     for event in pygame.event.get():
-    #         if event.type == pygame.QUIT:
-    #             pygame.quit()
-    #             return
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                return
 
-    #         if event.type == pygame.MOUSEBUTTONDOWN:
-    #             if not drawing_active:
-    #                 pos = pygame.mouse.get_pos()
-    #                 points.append(pos)
-    #                 drawing_active = True
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if not drawing_active:
+                    pos = pygame.mouse.get_pos()
+                    points.append(pos)
+                    drawing_active = True
 
-    #         if event.type == pygame.MOUSEBUTTONUP:
-    #             drawing_active = False
+            if event.type == pygame.MOUSEBUTTONUP:
+                drawing_active = False
 
-    #         if event.type == pygame.MOUSEMOTION:
-    #             if drawing_active:
-    #                 pos = pygame.mouse.get_pos()
-    #                 if len(points) == 0 or points[-1] != pos:
-    #                     points.append(pos)
+            if event.type == pygame.MOUSEMOTION:
+                if drawing_active:
+                    pos = pygame.mouse.get_pos()
+                    if len(points) == 0 or points[-1] != pos:
+                        points.append(pos)
 
-    #         if event.type == pygame.KEYDOWN:
-    #             if event.key == pygame.K_RETURN:
-    #                 drawing = False
-    #             if event.key == pygame.K_ESCAPE:
-    #                 pygame.quit()
-    #                 return
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN:
+                    drawing = False
+                if event.key == pygame.K_ESCAPE:
+                    pygame.quit()
+                    return
 
-    #     if len(points) > 1:
-    #         pygame.draw.lines(drawing_screen, constants.WHITE_COLOR,
-    #                           False, points, constants.DRAWN_TRACK_SIZE)
+        if len(points) > 1:
+            pygame.draw.lines(screen, constants.WHITE_COLOR,
+                              False, points, constants.DRAWN_TRACK_SIZE)
 
-    #     pygame.display.flip()
+        pygame.display.flip()
 
-    #     clock.tick(constants.FPS)
+        clock.tick(constants.FPS)
 
-    # inner_points, outer_points = expand_path(points, 40)
+    inner_points, outer_points = expand_path(points, 50)
 
-    # pygame.init()
-    # final_screen = pygame.display.set_mode(constants.SCREEN_DIMENSION)
-    # pygame.display.set_caption(constants.FINAL_SCREEN_CAPTION)
-    # clock = pygame.time.Clock()
+    # Edit screen
 
-    # running = True
+    pygame.init()
+    edit_screen = pygame.display.set_mode(constants.SCREEN_DIMENSION)
+    pygame.display.set_caption(constants.FINAL_SCREEN_CAPTION)
 
-    # while running:
-    #     final_screen.fill(constants.BLACK_COLOR)
+    running = True
+    erasing = False
 
-    #     for event in pygame.event.get():
-    #         if event.type == pygame.QUIT:
-    #             pygame.quit()
-    #             return
+    while running:
+        edit_screen.fill(constants.BLACK_COLOR)
 
-    #     draw_paths(final_screen, inner_points, outer_points)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                return
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    erasing = True
+            elif event.type == pygame.MOUSEBUTTONUP:
+                if event.button == 1:
+                    erasing = False
 
-    #     pygame.draw.circle(final_screen, constants.RED_COLOR, ((
-    #         inner_points[0][0]+outer_points[0][0])/2, (inner_points[0][1]+outer_points[0][1])/2), 2)
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN:
+                    running = False
+                if event.key == pygame.K_ESCAPE:
+                    pygame.quit()
+                    return
 
-    #     pygame.display.flip()
+        if erasing:
+            mouse_position = pygame.mouse.get_pos()
+            pygame.draw.circle(screen, constants.WHITE_COLOR,
+                               mouse_position, constants.ERASER_RADIUS)
+            inner_points[:] = erase_points(
+                inner_points, mouse_position, constants.ERASER_RADIUS)
+            outer_points[:] = erase_points(
+                outer_points, mouse_position, constants.ERASER_RADIUS)
 
-    #     clock.tick(constants.FPS)
+        draw_paths(edit_screen, inner_points, outer_points)
 
-    # pygame.quit()
+        # Locate the start point to place the car
 
-    screen = GameScreen(screen)
-    screen.run()
+        # pygame.draw.circle(edit_screen, constants.RED_COLOR, ((
+        #     inner_points[0][0]+outer_points[0][0])/2, (inner_points[0][1]+outer_points[0][1])/2), 2)
+
+        starting_point_x, starting_point_y = (
+            (inner_points[0][0] + outer_points[0][0]) / 2, (inner_points[0][1] + outer_points[0][1]) / 2)
+
+        pygame.display.flip()
+
+        clock.tick(constants.FPS)
+
+    # Final Screen
+
+    pygame.init()
+    final_screen = pygame.display.set_mode(constants.SCREEN_DIMENSION)
+    pygame.display.set_caption(constants.EDITING_SCREEN_CAPTION)
+
+    car = Car(starting_point_x, starting_point_y)
+
+    car_body = pygame.image.load(constants.CAR_BODY_FILE_PATH)
+    car_body = pygame.transform.scale(car_body, (30, 17))
+
+    running = True
+
+    while running:
+        final_screen.fill(constants.BLACK_COLOR)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                return
+            
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN:
+                    running = False
+                if event.key == pygame.K_ESCAPE:
+                    pygame.quit()
+                    return
+            
+        keys = pygame.key.get_pressed()
+        car.move(keys)
+
+        draw_paths(final_screen, inner_points, outer_points)
+
+        car.draw(final_screen, car_body)
+
+        pygame.display.flip()
+        clock.tick(constants.FPS)
+
+    pygame.quit()
 
 
 if __name__ == "__main__":

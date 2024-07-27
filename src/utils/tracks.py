@@ -1,4 +1,5 @@
 import pygame
+import math
 
 import numpy as np
 
@@ -64,3 +65,10 @@ def draw_paths(screen, inner_points, outer_points):
                           False, inner_points, 2)
         pygame.draw.lines(screen, constants.WHITE_COLOR,
                           False, outer_points, 2)
+
+
+def erase_points(points, eraser_pos, eraser_radius):
+    """
+    Erase points that are within the eraser radius from the given position.
+    """
+    return [p for p in points if math.dist(p, eraser_pos) > eraser_radius]
