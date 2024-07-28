@@ -3,11 +3,13 @@ import sys
 import math
 
 from src.utils import constants
+from src.core.paths import Paths
+
+paths = Paths()
 
 
-# TODO - Add all track like functionality in tracks
 class Car:
-    def __init__(self, screen, x: float, y: float, dimensions: tuple, path: tuple, show_sensors: bool, collisions: bool = True):
+    def __init__(self, screen, x: float, y: float, dimensions: tuple, path: tuple, show_sensors: bool, number_of_sensors: int, collisions: bool = True):
         """
             Creates the Car object on the game screen.
 
@@ -20,6 +22,8 @@ class Car:
         self.screen = screen
         self.collisions = collisions
         self.show_sensors = show_sensors
+        self.number_of_sensors = number_of_sensors
+        self.points = 0
 
         # Set initial position and metrics of the car
         self.x = x
@@ -29,6 +33,7 @@ class Car:
         self.size = constants.CAR_SIZE
         self.car_length = dimensions[0]
         self.car_width = dimensions[1]
+        self.car_points_factor = constants.CAR_POINTS_FACTOR
 
         # Set movement metrics for the car
         self.top_speed = constants.CAR_TOP_SPEED
@@ -40,45 +45,19 @@ class Car:
         self.inner_points = path[0]
         self.outer_points = path[1]
 
-    def _line_intersect(self, x1, y1, x2, y2, x3, y3, x4, y4):
-        """
-        Helper function to determine if two line segments intersect.
-        """
-        def ccw(A, B, C):
-            return (C[1]-A[1]) * (B[0]-A[0]) > (B[1]-A[1]) * (C[0]-A[0])
-
-        return ccw((x1, y1), (x3, y3), (x4, y4)) != ccw((x2, y2), (x3, y3), (x4, y4)) and \
-            ccw((x1, y1), (x2, y2), (x3, y3)) != ccw(
-                (x1, y1), (x2, y2), (x4, y4))
-
-    def _is_point_within_track(self, x, y, inner_points, outer_points):
-        """Check if a point is within the track boundaries."""
-        def point_in_polygon(point, polygon):
-            x, y = point
-            n = len(polygon)
-            inside = False
-
-            p1x, p1y = polygon[0]
-            for i in range(n + 1):
-                p2x, p2y = polygon[i % n]
-                if y > min(p1y, p2y):
-                    if y <= max(p1y, p2y):
-                        if x <= max(p1x, p2x):
-                            if p1y != p2y:
-                                xinters = (y - p1y) * (p2x - p1x) / \
-                                    (p2y - p1y) + p1x
-                            if p1x == p2x or x <= xinters:
-                                inside = not inside
-                p1x, p1y = p2x, p2y
-
-            return inside
-
-        return point_in_polygon((x, y), inner_points) and not point_in_polygon((x, y), outer_points)
+    def show_points(self):
+        font = pygame.font.Font(None, 36)
+        points_text = font.render(
+            f"Points: {round(self.points * self.car_points_factor, 0)}", True, (255, 255, 255))
+        self.screen.blit(points_text, (constants.SCREEN_WIDTH - 150, 10))
 
     def _draw_sensors(self):
         """Draw the sensor lines to visualize the car's perception of its surroundings."""
-        directions = [
-            0, 45, -45]  # Straight, left-diagonal, right-diagonal, left-right sensors
+        
+        if self.number_of_sensors == 3:
+            directions = [0, 45, -45]
+        elif self.number_of_sensors == 5:
+            directions = [0, 45, -45, 90, -90]
 
         for direction in directions:
             angle = self.angle + direction
@@ -94,7 +73,7 @@ class Car:
                 x_end = self.x + distance * cos_angle
                 y_end = self.y + distance * sin_angle
 
-                if not self._is_point_within_track(x_end, y_end, self.inner_points, self.outer_points):
+                if not paths.is_point_within_track(x_end, y_end, self.inner_points, self.outer_points):
                     hit_point = (x_end, y_end)
                     break
 
@@ -150,7 +129,7 @@ class Car:
                 cx1, cy1 = car_vertices[j]
                 cx2, cy2 = car_vertices[(j + 1) % 4]
 
-                if self._line_intersect(x1, y1, x2, y2, cx1, cy1, cx2, cy2):
+                if paths.line_intersect(x1, y1, x2, y2, cx1, cy1, cx2, cy2):
                     return True
 
         # Check collision with the outer path
@@ -162,7 +141,7 @@ class Car:
                 cx1, cy1 = car_vertices[j]
                 cx2, cy2 = car_vertices[(j + 1) % 4]
 
-                if self._line_intersect(x1, y1, x2, y2, cx1, cy1, cx2, cy2):
+                if paths.line_intersect(x1, y1, x2, y2, cx1, cy1, cx2, cy2):
                     return True
 
         return False
@@ -180,8 +159,10 @@ class Car:
         # Check if the car has gained any velocity or acceleration
         if key[pygame.K_w] or key[pygame.K_UP]:
             self.speed = min(self.speed + self.acceleration, self.top_speed)
+            self.points += 1
         elif key[pygame.K_s] or key[pygame.K_DOWN]:
             self.speed = max(self.speed - self.acceleration, -self.top_speed)
+            self.points -= 1
         else:
             if self.speed > 0:
                 self.speed = max(self.speed - self.deceleration, 0)

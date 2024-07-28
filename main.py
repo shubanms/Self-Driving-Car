@@ -1,8 +1,10 @@
 import pygame
 
-from src.utils.tracks import expand_path, draw_paths, erase_points
+from src.core.tracks import Tracks
 from src.utils import constants
 from src.core.car import Car
+
+tracks = Tracks()
 
 
 def main():
@@ -55,7 +57,8 @@ def main():
 
         clock.tick(constants.FPS)
 
-    inner_points, outer_points = expand_path(points, constants.FINAL_TRACK_SIZE)
+    inner_points, outer_points = tracks.expand_path(
+        points, constants.FINAL_TRACK_SIZE)
 
     # Edit screen
 
@@ -91,12 +94,12 @@ def main():
             mouse_position = pygame.mouse.get_pos()
             pygame.draw.circle(screen, constants.WHITE_COLOR,
                                mouse_position, constants.ERASER_RADIUS)
-            inner_points[:] = erase_points(
+            inner_points[:] = tracks.erase_points(
                 inner_points, mouse_position, constants.ERASER_RADIUS)
-            outer_points[:] = erase_points(
+            outer_points[:] = tracks.erase_points(
                 outer_points, mouse_position, constants.ERASER_RADIUS)
 
-        draw_paths(edit_screen, inner_points, outer_points)
+        tracks.draw_paths(edit_screen, inner_points, outer_points)
 
         starting_point_x, starting_point_y = (
             (inner_points[0][0] + outer_points[0][0]) / 2, (inner_points[0][1] + outer_points[0][1]) / 2)
@@ -114,7 +117,16 @@ def main():
     car_body = pygame.image.load(constants.CAR_BODY_FILE_PATH)
     car_body = pygame.transform.scale(car_body, constants.CAR_DIMENSIONS)
 
-    car = Car(screen = final_screen, x = starting_point_x, y = starting_point_y, show_sensors = True, dimensions = constants.CAR_DIMENSIONS, path = (inner_points, outer_points), collisions = True)
+    car = Car(
+        screen=final_screen,
+        x=starting_point_x,
+        y=starting_point_y,
+        show_sensors=True,
+        number_of_sensors=5,
+        dimensions=constants.CAR_DIMENSIONS,
+        path=(inner_points, outer_points),
+        collisions=False
+    )
 
     running = True
 
@@ -125,20 +137,22 @@ def main():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 return
-            
+
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
                     running = False
                 if event.key == pygame.K_ESCAPE:
                     pygame.quit()
                     return
-            
+
         keys = pygame.key.get_pressed()
         car.move(keys)
 
-        draw_paths(final_screen, inner_points, outer_points)
+        tracks.draw_paths(final_screen, inner_points, outer_points)
 
         car.draw(car_body)
+
+        car.show_points()
 
         pygame.display.flip()
         clock.tick(constants.FPS)
