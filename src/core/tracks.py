@@ -5,8 +5,6 @@ import numpy as np
 
 from src.utils import constants
 
-# TODO - Create this into a class and add other functionality to track the car placement in the track
-
 
 class Tracks:
     def __init__(self):
