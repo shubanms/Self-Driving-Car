@@ -9,13 +9,25 @@ paths = Paths()
 
 
 class Car:
-    def __init__(self, screen, x: float, y: float, dimensions: tuple, path: tuple, show_sensors: bool, number_of_sensors: int, collisions: bool = True):
+    def __init__(
+        self,
+        screen,
+        x: float,
+        y: float,
+        dimensions: tuple,
+        path: tuple,
+        show_sensors: bool,
+        number_of_sensors: int,
+        collisions: bool = True
+    ) -> None:
         """
             Creates the Car object on the game screen.
 
             Args:
                 x (float): Takes the X co-ord of the starting point of the car
                 y (float): Takes the Y co-ord of the starting point of the car
+
+            Returns: None
 
         """
 
@@ -45,15 +57,26 @@ class Car:
         self.inner_points = path[0]
         self.outer_points = path[1]
 
-    def show_points(self):
+    def show_game_points(self) -> None:
+        """
+            Displays the score/points of the current running game.
+        """
+
         font = pygame.font.Font(None, 36)
         points_text = font.render(
             f"Points: {round(self.points * self.car_points_factor, 0)}", True, (255, 255, 255))
         self.screen.blit(points_text, (constants.SCREEN_WIDTH - 150, 10))
 
-    def _draw_sensors(self):
-        """Draw the sensor lines to visualize the car's perception of its surroundings."""
-        
+    def _draw_sensors(self) -> None:
+        """
+            Draw the sensor lines to visualize the car's perception of its surroundings.
+
+            Has two types, one with 3 sensors and another one with 5 sensors.
+
+            3 sensors: [0, 45, -45], in angle from the car front.
+            5 sensors: [0, 45, -45, 90, -90] in angle from the car front.
+        """
+
         if self.number_of_sensors == 3:
             directions = [0, 45, -45]
         elif self.number_of_sensors == 5:
@@ -88,7 +111,11 @@ class Car:
             pygame.draw.circle(self.screen, constants.RED_COLOR,
                                (int(hit_point[0]), int(hit_point[1])), 3)
 
-    def draw(self, car_body):
+    def draw(self, car_body: pygame.image) -> None:
+        """
+            Draws the car object on the screen.
+        """
+
         rotated_car = pygame.transform.rotate(car_body, -self.angle)
         new_rect = rotated_car.get_rect(center=(self.x, self.y))
         self.screen.blit(rotated_car, new_rect.topleft)
@@ -108,6 +135,7 @@ class Car:
         Returns:
             bool: True if the car collides with either path, False otherwise.
         """
+
         # Car vertices based on the center position and size
         half_width = self.car_width / 4
         half_length = self.car_length / 4
@@ -146,15 +174,13 @@ class Car:
 
         return False
 
-    def move(self, key):
+    def move(self, key) -> None:
         """
             Moves around the Car object on the game screen with key presses
 
             Args:
                 key: Any pygame key press ['W', 'A', 'S', 'D'] or the arrow keys to move the car in all four directions.
         """
-
-        # TODO - Add in arrow keys as well for car control
 
         # Check if the car has gained any velocity or acceleration
         if key[pygame.K_w] or key[pygame.K_UP]:
@@ -180,9 +206,11 @@ class Car:
         self.x += self.speed * math.cos(radians)
         self.y += self.speed * math.sin(radians)
 
+        # Shows sensors from the car if it is enabled
         if self.show_sensors:
             self._draw_sensors()
 
+        # Applies collision to the car if it is enabled
         if self.collisions:
             if self.detect_collision():
                 self.speed = 0

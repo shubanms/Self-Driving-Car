@@ -117,6 +117,7 @@ def main():
     car_body = pygame.image.load(constants.CAR_BODY_FILE_PATH)
     car_body = pygame.transform.scale(car_body, constants.CAR_DIMENSIONS)
 
+    global car
     car = Car(
         screen=final_screen,
         x=starting_point_x,
@@ -152,7 +153,7 @@ def main():
 
         car.draw(car_body)
 
-        car.show_points()
+        car.show_game_points()
 
         pygame.display.flip()
         clock.tick(constants.FPS)

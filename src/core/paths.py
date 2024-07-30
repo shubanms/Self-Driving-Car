@@ -8,7 +8,7 @@ class Paths:
 
     def line_intersect(self, x1, y1, x2, y2, x3, y3, x4, y4):
         """
-        Helper function to determine if two line segments intersect.
+            Helper function to determine if two line segments intersect.
         """
         def ccw(A, B, C):
             return (C[1]-A[1]) * (B[0]-A[0]) > (B[1]-A[1]) * (C[0]-A[0])
@@ -17,7 +17,7 @@ class Paths:
             ccw((x1, y1), (x2, y2), (x3, y3)) != ccw(
                 (x1, y1), (x2, y2), (x4, y4))
 
-    def point_in_polygon(self, point, polygon):
+    def point_in_polygon(self, point: tuple, polygon: list) -> bool:
         """
             Helper function to check if a point co-ordinate lies inside a given polygon
 
@@ -47,7 +47,17 @@ class Paths:
 
         return inside
 
-    def is_point_within_track(self, x, y, inner_points, outer_points):
-        """Check if a point is within the track boundaries."""
+    def is_point_within_track(self, x: float, y: float, inner_points: list, outer_points: list) -> bool:
+        """
+            Check if a point is within the track boundaries
+
+            Args:
+                x (float): X co-ordinate of the point
+                y (float): y co-ordinate of the point
+                inner_points (list): The list of inner points of the track or the polygon to check
+                outer_points (list): The list of outer points of the track or the polygon to check
+
+            Returns: (bool) True if point is within the track boundary and False if not.
+        """
 
         return self.point_in_polygon((x, y), inner_points) and not self.point_in_polygon((x, y), outer_points)

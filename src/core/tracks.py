@@ -10,9 +10,9 @@ class Tracks:
     def __init__(self):
         pass
 
-    def line_intersect(x1, y1, x2, y2, x3, y3, x4, y4):
+    def line_intersect(x1, y1, x2, y2, x3, y3, x4, y4) -> bool:
         """
-        Helper function to determine if two line segments intersect.
+            Helper function to determine if two line segments intersect.
         """
         def ccw(A, B, C):
             return (C[1]-A[1]) * (B[0]-A[0]) > (B[1]-A[1]) * (C[0]-A[0])
@@ -21,8 +21,10 @@ class Tracks:
             ccw((x1, y1), (x2, y2), (x3, y3)) != ccw(
                 (x1, y1), (x2, y2), (x4, y4))
 
-    def get_perpendicular_vector(self, p1, p2, offset):
-        """Calculate the perpendicular vector with a given offset."""
+    def get_perpendicular_vector(self, p1, p2, offset) -> tuple:
+        """
+            Calculate the perpendicular vector with a given offset.
+        """
 
         dx, dy = p2[0] - p1[0], p2[1] - p1[1]
         length = np.sqrt(dx**2 + dy**2)
@@ -32,16 +34,16 @@ class Tracks:
         perp_y = dx / length * offset
         return (perp_x, perp_y)
 
-    def expand_path(self, points: list, thickness: int):
+    def expand_path(self, points: list, thickness: int) -> tuple:
         """
-        Expand the given points into an outer and inner path.
+            Expand the given points into an outer and inner path.
 
-        Args:
-            points (list): List of points representing the track.
-            thickness (int): The thickness of the track.
+            Args:
+                points (list): List of points representing the track.
+                thickness (int): The thickness of the track.
 
-        Returns:
-            tuple: Two lists of points representing the inner and outer paths.
+            Returns:
+                tuple: Two lists of points representing the inner and outer paths.
         """
         outer_points = []
         inner_points = []
@@ -64,14 +66,16 @@ class Tracks:
 
         return inner_points, outer_points
 
-    def draw_paths(self, screen, inner_points, outer_points):
+    def draw_paths(self, screen: pygame.surface, inner_points: list, outer_points: list) -> None:
         """
-        Draw the inner and outer paths on the Pygame screen.
+            Draw the inner and outer paths on the Pygame screen.
 
-        Args:
-            screen (pygame.Surface): The pygame surface to draw on.
-            inner_points (list): List of tuples representing the inner path.
-            outer_points (list): List of tuples representing the outer path.
+            Args:
+                screen (pygame.Surface): The pygame surface to draw on.
+                inner_points (list): List of tuples representing the inner path.
+                outer_points (list): List of tuples representing the outer path.
+
+            Returns: None
         """
 
         if inner_points and outer_points:
@@ -80,8 +84,15 @@ class Tracks:
             pygame.draw.lines(screen, constants.BLUE_COLOR,
                               False, outer_points, 2)
 
-    def erase_points(self, points, eraser_pos, eraser_radius):
+    def erase_points(self, points: list, eraser_position: tuple, eraser_radius: int) -> list:
         """
-        Erase points that are within the eraser radius from the given position.
+            Erase points that are within the eraser radius from the given position.
+
+            Args:
+                points (list): A list of points of the line or track
+                eraser_position (tuple): A tuple of the current eraser position (x, y)
+                eraser_radius (int): The erasers radius
+
+            Returns: (list) The list of points after the eraser has erased certain points from the track
         """
-        return [p for p in points if math.dist(p, eraser_pos) > eraser_radius]
+        return [p for p in points if math.dist(p, eraser_position) > eraser_radius]
