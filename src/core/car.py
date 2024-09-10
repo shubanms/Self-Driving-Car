@@ -18,28 +18,40 @@ class Car:
         path: tuple,
         show_sensors: bool,
         number_of_sensors: int,
-        collisions: bool = True
+        collisions: bool,
+        is_ai_driving: bool,
     ) -> None:
         """
             Creates the Car object on the game screen.
 
             Args:
+                screen (pygame.display): The screen on which to display the car
                 x (float): Takes the X co-ord of the starting point of the car
                 y (float): Takes the Y co-ord of the starting point of the car
+                dimensions (tuple(float, float)): The dimensions of the car
+                path (tuple(list[float], list[float])): The inner and outer points of the track
+                show_sensors (bool): To toggle the sensors of the car on display
+                number_of_sensors (3 or 5): The number of sensors attached to the car
+                collisions (bool): To toggle the collisions of the car within the track
 
-            Returns: None
+            Returns:
+                None
 
         """
+
+        self.is_ai_driving = is_ai_driving
 
         self.screen = screen
         self.collisions = collisions
         self.show_sensors = show_sensors
         self.number_of_sensors = number_of_sensors
-        self.points = 0
+        self.points = constants.CAR_INITIAL_POINTS
 
         # Set initial position and metrics of the car
         self.x = x
+        self.starting_x = x
         self.y = y
+        self.starting_y = y
         self.angle = constants.CAR_ANGLE
         self.speed = constants.CAR_INITIAL_SPEED
         self.size = constants.CAR_SIZE
@@ -57,6 +69,23 @@ class Car:
         self.inner_points = path[0]
         self.outer_points = path[1]
 
+    def reset(self, initial_x: float, initial_y: float) -> None:
+        """
+            Resets the cars position on a crash or when the algorithm plays the game and tries to learn to drive around in the track
+
+            Args:
+                initial_x (float): The initial position of x to reset the car to.
+                initial_y (float): The initial position of y to reset the car to.
+
+            Returns: None
+        """
+
+        self.x = initial_x
+        self.y = initial_y
+        self.angle = constants.CAR_ANGLE
+        self.speed = constants.CAR_INITIAL_SPEED
+        self.points = constants.CAR_INITIAL_POINTS
+
     def show_game_points(self) -> None:
         """
             Displays the score/points of the current running game.
@@ -71,7 +100,7 @@ class Car:
         """
             Draw the sensor lines to visualize the car's perception of its surroundings.
 
-            Has two types, one with 3 sensors and another one with 5 sensors.
+            Has two types, one with 3 sensors and another one with 5 sensors can be set when the car object is created.
 
             3 sensors: [0, 45, -45], in angle from the car front.
             5 sensors: [0, 45, -45, 90, -90] in angle from the car front.
@@ -114,6 +143,12 @@ class Car:
     def draw(self, car_body: pygame.image) -> None:
         """
             Draws the car object on the screen.
+
+            Args:
+                car_body (pygame.image): The car image to display on the track
+
+            Returns:
+                None
         """
 
         rotated_car = pygame.transform.rotate(car_body, -self.angle)
@@ -123,14 +158,6 @@ class Car:
     def detect_collision(self):
         """
         Check if the car collides with the inner or outer paths.
-
-        Args:
-            car_x (float): The x position of the car.
-            car_y (float): The y position of the car.
-            car_width (float): The width of the car.
-            car_height (float): The height of the car.
-            inner_points (list of tuples): Points defining the inner path.
-            outer_points (list of tuples): Points defining the outer path.
 
         Returns:
             bool: True if the car collides with either path, False otherwise.
@@ -180,6 +207,9 @@ class Car:
 
             Args:
                 key: Any pygame key press ['W', 'A', 'S', 'D'] or the arrow keys to move the car in all four directions.
+
+            Returns:
+                None
         """
 
         # Check if the car has gained any velocity or acceleration
@@ -212,8 +242,10 @@ class Car:
 
         # Applies collision to the car if it is enabled
         if self.collisions:
-            if self.detect_collision():
+            if self.detect_collision() and not self.is_ai_driving:
                 self.speed = 0
                 print("Crashed!")
                 pygame.quit()
                 sys.exit()
+            elif self.detect_collision() and self.is_ai_driving:
+                self.reset(self.starting_x, self.starting_y)

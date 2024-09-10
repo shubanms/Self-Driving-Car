@@ -7,7 +7,7 @@ from src.core.car import Car
 tracks = Tracks()
 
 
-def main():
+def main(is_ai_driving: bool):    
     # Drawing Screen
 
     pygame.init()
@@ -122,11 +122,12 @@ def main():
         screen=final_screen,
         x=starting_point_x,
         y=starting_point_y,
-        show_sensors=True,
+        show_sensors=False,
         number_of_sensors=5,
         dimensions=constants.CAR_DIMENSIONS,
         path=(inner_points, outer_points),
-        collisions=False
+        collisions=True,
+        is_ai_driving=is_ai_driving
     )
 
     running = True
@@ -162,4 +163,6 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    is_ai_driving = True
+
+    main(is_ai_driving)
