@@ -3,11 +3,13 @@ import pygame
 from src.core.tracks import Tracks
 from src.utils import constants
 from src.core.car import Car
+from src.core.model import Model
 
-tracks = Tracks()
 
+def main(is_ai_driving: bool):
 
-def main(is_ai_driving: bool):    
+    tracks = Tracks()
+
     # Drawing Screen
 
     pygame.init()
@@ -123,7 +125,7 @@ def main(is_ai_driving: bool):
         x=starting_point_x,
         y=starting_point_y,
         show_sensors=False,
-        number_of_sensors=5,
+        number_of_sensors=3,
         dimensions=constants.CAR_DIMENSIONS,
         path=(inner_points, outer_points),
         collisions=True,
@@ -136,19 +138,25 @@ def main(is_ai_driving: bool):
         final_screen.fill(constants.BLACK_COLOR)
 
         for event in pygame.event.get():
+            # Kill window
             if event.type == pygame.QUIT:
                 pygame.quit()
                 return
 
             if event.type == pygame.KEYDOWN:
+                # Enter key
                 if event.key == pygame.K_RETURN:
                     running = False
+                # Escape key
                 if event.key == pygame.K_ESCAPE:
                     pygame.quit()
                     return
 
-        keys = pygame.key.get_pressed()
-        car.move(keys)
+        if not is_ai_driving:
+            keys = pygame.key.get_pressed()
+            car.move(keys)
+        else:
+            car.play()
 
         tracks.draw_paths(final_screen, inner_points, outer_points)
 
@@ -163,6 +171,6 @@ def main(is_ai_driving: bool):
 
 
 if __name__ == "__main__":
-    is_ai_driving = True
+    is_ai_driving = False
 
     main(is_ai_driving)
