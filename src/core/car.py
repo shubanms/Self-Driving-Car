@@ -6,8 +6,6 @@ from typing import List
 
 from src.utils import constants
 from src.core.paths import Paths
-from src.schemas.model_inputs import ModelInputs
-from src.core.model import Model
 
 paths = Paths()
 
@@ -103,8 +101,6 @@ class Car:
         elif self.number_of_sensors == 5:
             directions = [0, 45, -45, 90, -90]
 
-        # sensor_distance = list()
-
         for direction in directions:
             angle = self.angle + direction
             radians = math.radians(angle)
@@ -131,13 +127,6 @@ class Car:
 
             if draw_sensor:
                 self._draw_sensors(hit_point)
-
-        #! Overridden in the child class of CAR that is AI driven
-        #     distance_to_obstacle = math.sqrt(
-        #         (hit_point[0] - self.x) ** 2 + (hit_point[1] - self.y) ** 2)
-        #     sensor_distance.append(distance_to_obstacle)
-
-        # return sensor_distance
 
     def _draw_sensors(self, hit_point: tuple) -> None:
         """

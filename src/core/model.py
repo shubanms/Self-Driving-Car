@@ -10,18 +10,14 @@ from src.schemas.model_inputs import ModelInputs
 
 
 class Model:
-    def __init__(self, inputs: ModelInputs):
-        self.car_speed = inputs.speed
-        self.number_of_sensors = len(inputs.sensors)
-        self.sensor_distances: list = inputs.sensors
-        self.points = inputs.points
+    def __init__(self):
+        print("Model initialized!")
 
-    def show_inputs(self):
+    def show_inputs(self, model_input_data: ModelInputs):
         model_input_data = {
-            "Car speed": self.car_speed,
-            "Number of sensors": self.number_of_sensors,
-            "Sensors distance": self.sensor_distances,
-            "Game score": self.points
+            "Car speed": model_input_data.speed,
+            "Sensors distance": model_input_data.sensors,
+            "Game score": model_input_data.points
         }
 
         print(model_input_data)

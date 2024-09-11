@@ -181,6 +181,6 @@ def main(ai_driving: bool):
 
 
 if __name__ == "__main__":
-    ai_driving = False
-    
+    ai_driving = True
+
     main(ai_driving)
