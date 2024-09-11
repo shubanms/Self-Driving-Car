@@ -23,7 +23,6 @@ class Car:
         show_sensors: bool,
         number_of_sensors: int,
         collisions: bool,
-        is_ai_driving: bool,
     ) -> None:
         """
             Creates the Car object on the game screen.
@@ -42,8 +41,6 @@ class Car:
                 None
 
         """
-
-        self.is_ai_driving = is_ai_driving
 
         self.screen = screen
         self.collisions = collisions
@@ -99,14 +96,14 @@ class Car:
         points_text = font.render(
             f"Points: {round(self.points * self.car_points_factor, 0)}", True, (255, 255, 255))
         self.screen.blit(points_text, (constants.SCREEN_WIDTH - 150, 10))
-        
+
     def get_sensors_distance(self, draw_sensor: bool) -> List[tuple]:
         if self.number_of_sensors == 3:
             directions = [0, 45, -45]
         elif self.number_of_sensors == 5:
             directions = [0, 45, -45, 90, -90]
-            
-        sensor_distance = list()
+
+        # sensor_distance = list()
 
         for direction in directions:
             angle = self.angle + direction
@@ -131,14 +128,16 @@ class Car:
                 x_end = self.x + max_distance * cos_angle
                 y_end = self.y + max_distance * sin_angle
                 hit_point = (x_end, y_end)
-                
+
             if draw_sensor:
                 self._draw_sensors(hit_point)
-            
-            distance_to_obstacle = math.sqrt((hit_point[0] - self.x) ** 2 + (hit_point[1] - self.y) ** 2)
-            sensor_distance.append(distance_to_obstacle)
-            
-        return sensor_distance
+
+        #! Overridden in the child class of CAR that is AI driven
+        #     distance_to_obstacle = math.sqrt(
+        #         (hit_point[0] - self.x) ** 2 + (hit_point[1] - self.y) ** 2)
+        #     sensor_distance.append(distance_to_obstacle)
+
+        # return sensor_distance
 
     def _draw_sensors(self, hit_point: tuple) -> None:
         """
@@ -149,11 +148,11 @@ class Car:
             3 sensors: [0, 45, -45], in angle from the car front.
             5 sensors: [0, 45, -45, 90, -90] in angle from the car front.
         """
-        
+
         pygame.draw.line(self.screen, constants.GREEN_COLOR,
-                            (self.x, self.y), hit_point, 2)
+                         (self.x, self.y), hit_point, 2)
         pygame.draw.circle(self.screen, constants.RED_COLOR,
-                            (int(hit_point[0]), int(hit_point[1])), 3)
+                           (int(hit_point[0]), int(hit_point[1])), 3)
 
     def draw(self, car_body: pygame.image) -> None:
         """
@@ -257,19 +256,8 @@ class Car:
 
         # Applies collision to the car if it is enabled
         if self.collisions:
-            if self.detect_collision() and not self.is_ai_driving:
+            if self.detect_collision():
                 self.speed = 0
                 print("Crashed!")
                 pygame.quit()
                 sys.exit()
-            elif self.detect_collision() and self.is_ai_driving:
-                self.reset(self.starting_x, self.starting_y)
-                
-        self.play()
-
-    def play(self):
-        model_inputs = ModelInputs(speed = self.speed, sensors=self.get_sensors_distance(self.show_sensors))
-        model = Model(model_inputs)
-        
-        model.show_inputs()
-        

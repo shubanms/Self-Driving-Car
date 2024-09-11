@@ -3,10 +3,10 @@ import pygame
 from src.core.tracks import Tracks
 from src.utils import constants
 from src.core.car import Car
-from src.core.model import Model
+from src.core.ai_car import AIControlledCar
 
 
-def main(is_ai_driving: bool):
+def main(ai_driving: bool):
 
     tracks = Tracks()
 
@@ -120,17 +120,30 @@ def main(is_ai_driving: bool):
     car_body = pygame.transform.scale(car_body, constants.CAR_DIMENSIONS)
 
     global car
-    car = Car(
-        screen=final_screen,
-        x=starting_point_x,
-        y=starting_point_y,
-        show_sensors=False,
-        number_of_sensors=3,
-        dimensions=constants.CAR_DIMENSIONS,
-        path=(inner_points, outer_points),
-        collisions=True,
-        is_ai_driving=is_ai_driving
-    )
+
+    if ai_driving:
+        car = AIControlledCar(
+            screen=final_screen,
+            x=starting_point_x,
+            y=starting_point_y,
+            show_sensors=True,
+            number_of_sensors=3,
+            dimensions=constants.CAR_DIMENSIONS,
+            path=(inner_points, outer_points),
+            collisions=True,
+        )
+
+    else:
+        car = Car(
+            screen=final_screen,
+            x=starting_point_x,
+            y=starting_point_y,
+            show_sensors=True,
+            number_of_sensors=3,
+            dimensions=constants.CAR_DIMENSIONS,
+            path=(inner_points, outer_points),
+            collisions=True,
+        )
 
     running = True
 
@@ -152,11 +165,8 @@ def main(is_ai_driving: bool):
                     pygame.quit()
                     return
 
-        if not is_ai_driving:
-            keys = pygame.key.get_pressed()
-            car.move(keys)
-        else:
-            car.play()
+        keys = pygame.key.get_pressed()
+        car.move(keys)
 
         tracks.draw_paths(final_screen, inner_points, outer_points)
 
@@ -171,6 +181,6 @@ def main(is_ai_driving: bool):
 
 
 if __name__ == "__main__":
-    is_ai_driving = False
-
-    main(is_ai_driving)
+    ai_driving = False
+    
+    main(ai_driving)
